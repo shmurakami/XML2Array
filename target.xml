@@ -1,0 +1,11 @@
+<?xml abA="hoge" version="1.0" encoding="utf-8" ?>
+<dataset>
+  <table name="test">
+    <column>hoge</column>
+	<column>piyo</column>
+    <row>
+      <value>foo</value>
+	  <value>bar</value>
+    </row>
+  </table>
+</dataset>
