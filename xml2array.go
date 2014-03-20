@@ -2,8 +2,14 @@ package main
 
 import (
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"io/ioutil"
+)
+
+var (
+	f    = flag.String("f", "", "filename")
+	file = flag.String("file", "", "filename long option")
 )
 
 type Dataset struct {
@@ -25,7 +31,17 @@ func (t Table) String() string {
 }
 
 func main() {
-	b, err := ioutil.ReadFile("target.xml")
+	flag.Parse()
+	if *f == "" && *file == "" {
+		fmt.Println("Missing filename (use --help for help)")
+		return
+	}
+	fn := *f
+	if *file != "" {
+		fn = *file
+	}
+
+	b, err := ioutil.ReadFile(fn)
 	if err != nil {
 		fmt.Println("file open error: ", err.Error())
 		return
@@ -41,33 +57,34 @@ func main() {
 
 		rCon := len(t.Column)
 		tN := t.Name
-		rs := make([]string, rCon)
-		vs := make([]string, rCon)
-		for _, c := range t.Column {
-			rs[i] = c
-			i++
-		}
 
-		i = 0
+		fmt.Printf("'%s' => array(\n", tN)
+
 		for _, r := range t.Row {
+			i = 0
+			vs := make([]string, rCon)
 			for _, v := range r.Value {
 				vs[i] = v
 				i++
 			}
+			showFormatedValue(t.Column, vs)
 		}
-		showFormatedValue(tN, rs, vs)
+
+		fmt.Println(");")
 	}
 
 }
 
 // print php-array-format
-func showFormatedValue(tN string, rs, vs []string) {
-	fmt.Printf("'%s' => array (\n", tN)
+func showFormatedValue(cs, vs []string) {
 	i := 0
-	for _, r := range rs {
-		fmt.Printf("    '%s' => '%s',\n", r, vs[i])
+	fmt.Println("    array(")
+	for _, c := range cs {
+
+		fmt.Printf("        '%s' => '%s',\n", c, vs[i])
+		i++
 	}
-	fmt.Println(");")
+	fmt.Println("    ),")
 }
 
 func convertGoReadebleFormat(b []byte) []byte {
