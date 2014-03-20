@@ -2,8 +2,14 @@ package main
 
 import (
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"io/ioutil"
+)
+
+var (
+	f    = flag.String("f", "", "filename")
+	file = flag.String("file", "", "filename long option")
 )
 
 type Dataset struct {
@@ -25,7 +31,17 @@ func (t Table) String() string {
 }
 
 func main() {
-	b, err := ioutil.ReadFile("target.xml")
+	flag.Parse()
+	if *f == "" && *file == "" {
+		fmt.Println("Missing filename (use --help for help)")
+		return
+	}
+	fn := *f
+	if *file != "" {
+		fn = *file
+	}
+
+	b, err := ioutil.ReadFile(fn)
 	if err != nil {
 		fmt.Println("file open error: ", err.Error())
 		return
